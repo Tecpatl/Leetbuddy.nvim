@@ -109,6 +109,8 @@ local function fetch_question(slug)
     table.insert(img_urls, url)
     return "##IMAGE##"
   end)
+  content = string.gsub(content, "<sup>", "^")
+  content = string.gsub(content, "</sup>", "")
   content = string.gsub(content, "<[^>]+>", "")
 
   for _, url in ipairs(img_urls) do
