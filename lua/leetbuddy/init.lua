@@ -2,6 +2,8 @@ local M = {}
 
 M.user_config = require("leetbuddy.default_config")
 
+local cmd = require("leetbuddy.selector.view.cmd")
+
 local function create_cmds()
   local questions = require("leetbuddy.questions").questions
   local question = require("leetbuddy.question").question
@@ -22,6 +24,15 @@ local function create_cmds()
   vim.api.nvim_create_user_command("LBSubmit", submit, opts)
   vim.api.nvim_create_user_command("LBClose", close, opts)
   vim.api.nvim_create_user_command("LBCheckCookies", checkcookies, opts)
+
+  -- selector module substitute
+  cmd:setup()
+  vim.api.nvim_create_user_command("LeetBuddyCmd", function()
+    cmd:startNormal()
+  end, {
+    nargs = 0,
+  })
+
   require("leetbuddy.functionalities")
 end
 
