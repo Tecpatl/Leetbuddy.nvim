@@ -53,8 +53,10 @@ local function display_questions(search_query)
     }
   ]]
 
-  local response =
-    curl.post(graphql_endpoint, { headers = headers, body = vim.json.encode({ query = query, variables = variables }) })
+  local response = curl.post(
+    graphql_endpoint,
+    { headers = headers, body = vim.json.encode({ query = query, variables = variables }) }
+  )
 
   local data = vim.json.decode(response["body"])["data"]["problemsetQuestionList"]
   return (data ~= vim.NIL and data["questions"] or {})
@@ -136,7 +138,7 @@ local function select_problem(prompt_bufnr)
   local input = config.directory .. sep .. question_slug .. sep .. "input" .. "." .. "txt"
 
   local qfound =
-    utils.find_file_inside_folder(config.directory .. sep .. question_slug, question_slug .. "." .. config.language)
+  utils.find_file_inside_folder(config.directory .. sep .. question_slug, question_slug .. "." .. config.language)
 
   if split.get_results_buffer() then
     vim.api.nvim_command("LBClose")
@@ -163,49 +165,53 @@ end
 
 function M.questions()
   vim.cmd("LBCheckCookies")
+  print("<c-r>:reset <c-e>:easy <c-x>:meidum <c-d>:hard <c-l>:ac <c-n>:new <c-t>:fail")
   pickers
-    .new(opts, {
-      prompt_title = "Question",
-      finder = finders.new_dynamic({
-        fn = filter_problems(),
-        entry_maker = gen_from_questions(),
-      }),
-      sorter = conf.generic_sorter(opts),
-      attach_mappings = function(_, map)
-        map({ "n", "i" }, "<CR>", select_problem)
-        map({ "n", "i" }, "<A-r>", function()
-          M.difficulty = nil
-          M.status = nil
-          M.questions()
-        end)
-        map({ "n", "i" }, "<A-e>", function()
-          M.difficulty = "EASY"
-          M.questions()
-        end)
-        map({ "n", "i" }, "<A-m>", function()
-          M.difficulty = "MEDIUM"
-          M.questions()
-        end)
-        map({ "n", "i" }, "<A-h>", function()
-          M.difficulty = "HARD"
-          M.questions()
-        end)
-        map({ "n", "i" }, "<A-a>", function()
-          M.status = "AC"
-          M.questions()
-        end)
-        map({ "n", "i" }, "<A-y>", function()
-          M.status = "NOT_STARTED"
-          M.questions()
-        end)
-        map({ "n", "i" }, "<A-t>", function()
-          M.status = "TRIED"
-          M.questions()
-        end)
-        return true
-      end,
-    })
-    :find()
+      .new(opts, {
+        prompt_title = "Question",
+        finder = finders.new_dynamic({
+          fn = filter_problems(),
+          entry_maker = gen_from_questions(),
+        }),
+        sorter = conf.generic_sorter(opts),
+        attach_mappings = function(_, map)
+          map({ "n", "i" }, "<CR>", select_problem)
+          map({ "n", "i" }, "<c-h>", function()
+            print("<c-r>:reset <c-e>:easy <c-x>:meidum <c-d>:hard <c-l>:ac <c-n>:new <c-t>:fail")
+          end)
+          map({ "n", "i" }, "<c-r>", function()
+            M.difficulty = nil
+            M.status = nil
+            M.questions()
+          end)
+          map({ "n", "i" }, "<c-e>", function()
+            M.difficulty = "EASY"
+            M.questions()
+          end)
+          map({ "n", "i" }, "<c-x>", function()
+            M.difficulty = "MEDIUM"
+            M.questions()
+          end)
+          map({ "n", "i" }, "<c-d>", function()
+            M.difficulty = "HARD"
+            M.questions()
+          end)
+          map({ "n", "i" }, "<c-l>", function()
+            M.status = "AC"
+            M.questions()
+          end)
+          map({ "n", "i" }, "<c-n>", function()
+            M.status = "NOT_STARTED"
+            M.questions()
+          end)
+          map({ "n", "i" }, "<c-t>", function()
+            M.status = "TRIED"
+            M.questions()
+          end)
+          return true
+        end,
+      })
+      :find()
 end
 
 return M
